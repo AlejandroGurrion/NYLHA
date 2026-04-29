@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - H&H-Personaliza{% endblock %}
+
+{% block content %}
+<style>
+    .status-header {
+        text-align: center;
+        padding: 15px;
+        font-size: 22px;
+        font-weight: bold;
+        border-radius: 5px;
+        margin: -20px -20px 20px -20px;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .bg-alerta { background-color: #ff6666; } 
+    .bg-optimo { background-color: #24a148; } 
+
+    .alerta-detalle {
+        background-color: white;
+        margin: 10px 20px;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .alerta-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 16px; }
+    .subtitulo { color: #666; font-weight: bold; margin: 20px 0 10px 0; }
+
+    .categoria-btn {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        text-decoration: none;
+        color: black;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+    .textiles { background-color: #d1e2ff; }
+    .ceramicos { background-color: #d4edda; }
+    .viniles { background-color: #fff3cd; }
+
+    .cat-icon { font-size: 35px; margin-right: 15px; color: #333; }
+    .cat-info b { font-size: 18px; display: block; }
+    .cat-info span { font-size: 13px; color: #555; }
+
+    .actividad-box {
+        background-color: white;
+        padding: 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        margin-bottom: 80px;
+        color: #888;
+        text-align: center;
+    }
+
+    /* BOTONES FLOTANTES */
+    .btn-flotante-container {
+        position: fixed;
+        right: 20px;
+        bottom: 100px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .btn-circulo {
+        width: 65px; height: 65px; border-radius: 50%; border: 2px solid #000;
+        color: white; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; font-size: 10px; font-weight: bold; cursor: pointer;
+        box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+    }
+    .btn-entrada { background-color: #00c851; }
+    .btn-salida { background-color: #ff3547; }
+</style>
+
+{% if alertas %}
+    <div class="status-header bg-alerta">
+        Alerta: Stock Crítico
+    </div>
+    <div class="alerta-detalle">
+        {% for item in alertas %}
+            <div class="alerta-item"> ⚠️ {{ item.nombre_mat }}: {{ item.stock_actual }} unidades</div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="status-header bg-optimo">
+        Stock en Óptimo Estado
+    </div>
+    <div class="alerta-detalle">
+        <div style="text-align: center; color: #666;">
+            <i class="fas fa-check-circle" style="color: #24a148;"></i> 
+            Todo en orden. No hay stock bajo.
+        </div>
+    </div>
+{% endif %}
+
+<div class="subtitulo">Resumen de Inventario</div>
+
+<a href="{{ url_for('ver_textiles') }}" class="categoria-btn textiles">
+    <i class="fas fa-tshirt cat-icon"></i>
+    <div class="cat-info">
+        <b>TEXTILES</b>
+        <span>Playeras y Gorras</span>
+    </div>
+</a>
+
+<a href="{{ url_for('ver_ceramicos') }}" class="categoria-btn ceramicos">
+    <i class="fas fa-mug-hot cat-icon"></i>
+    <div class="cat-info">
+        <b>CERÁMICOS</b>
+        <span>Tazas Mágicas y Glitter</span>
+    </div>
+</a>
+
+<a href="{{ url_for('ver_viniles') }}" class="categoria-btn viniles">
+    <i class="fas fa-scroll cat-icon"></i>
+    <div class="cat-info">
+        <b>VINILES</b>
+        <span>Vinil Textil y Reflejante</span>
+    </div>
+</a>
+
+<div class="subtitulo">Actividad Reciente</div>
+<div class="actividad-box">
+    {% if movimientos %}
+        {% for mov, mat in movimientos %} <div style="border-bottom: 1px solid #eee; padding: 10px; text-align: left; color: #333;">
+                <b style="color: {% if mov.tipo_mov == 'Entrada' %}#24a148{% else %}#ff3547{% endif %};">
+                    {{ mov.tipo_mov }}:
+                </b> 
+                <span>{{ mat.nombre_mat }}</span> <br>
+                <small>{{ mov.cantidad }} unidades - {{ mov.fecha.strftime('%d/%m %H:%M') }}</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <i class="fas fa-info-circle"></i> Aún no se registran movimientos.
+    {% endif %}
+</div>
+
+<div class="btn-flotante-container">
+    
+    <a href="{{ url_for('registrar_entrada') }}" style="text-decoration: none;">
+        <div class="btn-circulo btn-entrada">
+            <i class="fas fa-plus"></i>
+            Entrada
+        </div>
+    </a>
+
+    <a href="{{ url_for('registrar_salida') }}" style="text-decoration: none;">
+        <div class="btn-circulo btn-salida">
+            <i class="fas fa-minus"></i>
+            Salida
+        </div>
+    </a>
+</div>
+{% endblock %}

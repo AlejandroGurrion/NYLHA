@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Entrada{% endblock %}
+
+{% block content %}
+<style>
+    .header-verde { 
+        background-color: #d4edda; 
+        color: #155724; 
+        padding: 15px; 
+        text-align: center; 
+        font-weight: bold; 
+        font-size: 20px;
+        border-bottom: 2px solid #c3e6cb; 
+        margin: -20px -20px 20px -20px;
+    }
+    .search-box { display: flex; align-items: center; border: 2px solid #000; padding: 10px; margin-bottom: 15px; background: white; }
+    .grid-opciones { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .opcion-item { 
+        border: 2px solid #000; padding: 8px 12px; cursor: pointer; 
+        font-weight: bold; background: white; border-radius: 5px;
+    }
+    .opcion-item.selected { border-color: #24a148; color: #24a148; background-color: #e9f7ef; }
+
+    .color-row { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
+    .box-color { width: 40px; height: 25px; border: 2px solid #000; cursor: pointer; }
+    .box-color.selected { border: 3px solid #24a148; }
+
+    .btn-confirmar-entrada {
+        width: 100%; background-color: #5bb32d; color: white;
+        padding: 15px; border: none; border-radius: 10px;
+        font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase;
+    }
+</style>
+
+<div class="header-verde">Registrar Entrada</div>
+
+<div style="padding: 15px;">
+    <form action="{{ url_for('registrar_entrada') }}" method="POST">
+        <div class="search-box">
+            <i class="fas fa-search" style="margin-right: 10px; color: #ccc;"></i>
+            <select name="id_producto" id="select_producto" style="width:100%; border:none; font-size:18px;" required onchange="detectarCategoria()">
+                <option value="">Buscar producto...</option>
+                {% for prod in productos %}
+                    <option value="{{ prod.id_producto }}" data-categoria="{{ prod.id_categoria }}">
+                        {{ prod.nombre_prod }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="seccion_tallas" style="display: none;">
+            <p><b>Talla</b></p>
+            <div class="grid-opciones">
+                <div class="opcion-item" onclick="selectAtributo('CH', this)">CH</div>
+                <div class="opcion-item" onclick="selectAtributo('M', this)">M</div>
+                <div class="opcion-item" onclick="selectAtributo('G', this)">G</div>
+                <div class="opcion-item" onclick="selectAtributo('XG', this)">XG</div>
+            </div>
+        </div>
+
+        <div id="seccion_tipos_taza" style="display: none;">
+            <p><b>Tipo de Taza</b></p>
+            <div class="grid-opciones">
+                <div class="opcion-item" onclick="selectAtributo('Blanca', this)">Blanca</div>
+                <div class="opcion-item" onclick="selectAtributo('Magica', this)">Mágica</div>
+                <div class="opcion-item" onclick="selectAtributo('Glitter', this)">Glitter</div>
+            </div>
+        </div>
+
+        <div id="seccion_viniles" style="display: none;">
+            <p><b>Presentación</b></p>
+            <div class="grid-opciones">
+                <div class="opcion-item" onclick="selectAtributo('Metro', this)">Metro</div>
+                <div class="opcion-item" onclick="selectAtributo('Rollo', this)">Rollo</div>
+                <div class="opcion-item" onclick="selectAtributo('Hoja', this)">Hoja</div>
+            </div>
+        </div>
+
+        <input type="hidden" name="talla_sel" id="talla_sel" required>
+
+        <p><b>Color / Acabado</b></p>
+        <div class="color-row">
+            <div class="box-color" style="background: black;" onclick="selectColor('Negro', this)" title="Negro"></div>
+            <div class="box-color" style="background: blue;" onclick="selectColor('Azul', this)" title="Azul"></div>
+            <div class="box-color" style="background: white;" onclick="selectColor('Blanco', this)" title="Blanco"></div>
+            <div class="box-color" style="background: red;" onclick="selectColor('Rojo', this)" title="Rojo"></div>
+            <div class="box-color" style="background: #ffd700;" onclick="selectColor('Dorado', this)" title="Dorado"></div>
+            <div class="box-color" style="background: #c0c0c0;" onclick="selectColor('Plateado', this)" title="Plateado"></div>
+            <div class="box-color" style="background: #ffc0cb;" onclick="selectColor('Rosa', this)" title="Rosa"></div>
+        </div>
+        <input type="hidden" name="color_sel" id="color_sel" required>
+
+        <p><b>Cantidad de entrada</b></p>
+        <input type="number" name="cantidad" style="width: 100px; padding: 10px; font-size: 18px;" placeholder="0 Uds" required min="1">
+
+        <button type="submit" class="btn-confirmar-entrada" style="margin-top: 20px;">CONFIRMAR ENTRADA</button>
+    </form>
+</div>
+
+<script>
+    function detectarCategoria() {
+        var select = document.getElementById("select_producto");
+        var categoria = select.options[select.selectedIndex].getAttribute("data-categoria");
+        
+        var divTallas = document.getElementById("seccion_tallas");
+        var divTazas = document.getElementById("seccion_tipos_taza");
+        var divViniles = document.getElementById("seccion_viniles");
+
+        // Reset de selecciones
+        document.getElementById('talla_sel').value = "";
+        document.querySelectorAll('.opcion-item').forEach(i => i.classList.remove('selected'));
+
+        divTallas.style.display = "none";
+        divTazas.style.display = "none";
+        divViniles.style.display = "none";
+
+        if (categoria == "1") { // Textiles
+            divTallas.style.display = "block";
+        } else if (categoria == "2") { // Cerámicos
+            divTazas.style.display = "block";
+        } else if (categoria == "3") { // Viniles
+            divViniles.style.display = "block";
+        }
+    }
+
+    function selectAtributo(valor, elemento) {
+        document.querySelectorAll('.opcion-item').forEach(i => i.classList.remove('selected'));
+        elemento.classList.add('selected');
+        document.getElementById('talla_sel').value = valor;
+    }
+
+    function selectColor(color, elemento) {
+        document.querySelectorAll('.box-color').forEach(i => i.classList.remove('selected'));
+        elemento.classList.add('selected');
+        document.getElementById('color_sel').value = color;
+    }
+</script>
+{% endblock %}

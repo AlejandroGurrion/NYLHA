@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="padding: 20px;">
+    <h2>Editar: {{ producto.nombre_prod }}</h2>
+    <form action="{{ url_for('editar_producto', id=producto.id_producto) }}" method="POST">
+        <label>Nombre del Producto:</label><br>
+        <input type="text" name="nombre_producto" value="{{ producto.nombre_prod }}" style="width:100%; padding:10px; margin-bottom:20px; border: 2px solid black;">
+        
+        <label>Categoría:</label><br>
+        <select name="categoria" style="width:100%; padding:10px; margin-bottom:20px; border: 2px solid black;">
+            <option value="1" {% if producto.id_categoria == 1 %}selected{% endif %}>Textiles</option>
+            <option value="2" {% if producto.id_categoria == 2 %}selected{% endif %}>Cerámicos</option>
+            <option value="3" {% if producto.id_categoria == 3 %}selected{% endif %}>Viniles</option>
+        </select>
+        
+        <button type="submit" style="width:100%; padding:15px; background: #5bb32d; color: white; font-weight:bold; border: 2px solid black;">ACTUALIZAR DATOS</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Producto{% endblock %}
+
+{% block content %}
+<style>
+    .formulario-container { padding: 10px; }
+    .campo-grupo { margin-bottom: 20px; }
+    label.titulo-campo { display: block; font-weight: bold; margin-bottom: 10px; color: #333; }
+
+    .input-text, .select-cat {
+        width: 100%; padding: 12px; border: 2px solid #000;
+        border-radius: 5px; font-size: 16px; box-sizing: border-box;
+    }
+
+    .tallas-container { display: flex; gap: 10px; flex-wrap: wrap; }
+    
+    .check-item { position: relative; }
+    .check-item input {
+        position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0;
+    }
+
+    .checkmark {
+        display: inline-block; width: auto; min-width: 45px; height: 40px;
+        padding: 0 10px; border: 2px solid #000; text-align: center;
+        line-height: 40px; font-weight: bold; cursor: pointer;
+        background-color: white; border-radius: 5px;
+    }
+
+    .check-item input:checked ~ .checkmark {
+        border-color: #ff0000; color: #ff0000;
+    }
+
+    .colores-container { display: flex; flex-direction: column; gap: 10px; }
+    .color-item { display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; }
+    .box-color { width: 30px; height: 30px; border: 2px solid #000; border-radius: 3px; }
+
+    .btn-guardar {
+        width: 100%; background-color: #5bb32d; color: white;
+        padding: 15px; border: 2px solid #000; border-radius: 10px;
+        font-size: 18px; font-weight: bold; text-transform: uppercase;
+        cursor: pointer; margin-top: 20px;
+    }
+
+    .btn-regresar { text-decoration: none; color: #000; font-size: 25px; margin-bottom: 10px; display: block; }
+</style>
+
+<a href="{{ url_for('gestion_catalogo') }}" class="btn-regresar">
+    <i class="fas fa-arrow-left"></i>
+</a>
+
+<div class="formulario-container">
+    <form action="{{ url_for('nuevo_producto') }}" method="POST">
+        
+        <div class="campo-grupo">
+            <label class="titulo-campo">Nombre del producto</label>
+            <input type="text" name="nombre_producto" class="input-text" placeholder="Ej. Pantalon Caballero" required>
+        </div>
+
+        <div class="campo-grupo">
+            <label class="titulo-campo">Categoría</label>
+            <select name="categoria" id="categoria_select" class="select-cat" onchange="actualizarInterfaz()">
+                <option value="1">Textiles</option>
+                <option value="2">Cerámicos</option>
+                <option value="3">Viniles</option>
+            </select>
+        </div>
+
+        <div class="campo-grupo">
+            <label class="titulo-campo" id="titulo_variante">Talla</label>
+            
+            <div id="seccion_textiles" class="tallas-container">
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="CH">
+                    <span class="checkmark">CH</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="M">
+                    <span class="checkmark">M</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="G">
+                    <span class="checkmark">G</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="XG">
+                    <span class="checkmark">XG</span>
+                </label>
+            </div>
+
+            <div id="seccion_ceramicos" class="tallas-container" style="display: none;">
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="Blanca">
+                    <span class="checkmark">Blanca</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="Magica">
+                    <span class="checkmark">Mágica</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="Glitter">
+                    <span class="checkmark">Glitter</span>
+                </label>
+            </div>
+
+            <div id="seccion_viniles" class="tallas-container" style="display: none;">
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="Metro">
+                    <span class="checkmark">Metro</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="Rollo">
+                    <span class="checkmark">Rollo</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="tallas" value="Hoja">
+                    <span class="checkmark">Hoja</span>
+                </label>
+            </div>
+
+        </div>
+
+        <div class="campo-grupo">
+            <label class="titulo-campo">Color / Acabado</label>
+            <div class="colores-container">
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Negro"> Negro 
+                    <div class="box-color" style="background: black;"></div>
+                </label>
+
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Azul"> Azul 
+                    <div class="box-color" style="background: blue;"></div>
+                </label>
+
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Blanco"> Blanco 
+                    <div class="box-color" style="background: white;"></div>
+                </label>
+
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Rojo"> Rojo 
+                    <div class="box-color" style="background: red;"></div>
+                </label>
+
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Dorado"> Dorado 
+                    <div class="box-color" style="background: #ffd700;"></div>
+                </label>
+
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Plateado"> Plateado 
+                    <div class="box-color" style="background: #c0c0c0;"></div>
+                </label>
+                
+                <label class="color-item">
+                    <input type="checkbox" name="colores" value="Rosa"> Rosa 
+                    <div class="box-color" style="background: #ffc0cb;"></div>
+                </label>
+            </div>
+        </div>
+
+        <div class="campo-grupo">
+            <label class="titulo-campo">Stock Mínimo (Alerta)</label>
+            <input type="number" name="stock_minimo" class="input-text" placeholder="Ej. 10" required>
+        </div>
+
+        <button type="submit" class="btn-guardar">GUARDAR PRODUCTO</button>
+    </form>
+</div>
+
+<script>
+function actualizarInterfaz() {
+    var categoria = document.getElementById("categoria_select").value;
+    var secTextiles = document.getElementById("seccion_textiles");
+    var secCeramicos = document.getElementById("seccion_ceramicos");
+    var secViniles = document.getElementById("seccion_viniles"); 
+    var tituloVariante = document.getElementById("titulo_variante");
+
+    secTextiles.style.display = "none";
+    secCeramicos.style.display = "none";
+    secViniles.style.display = "none";
+
+    if (categoria == "1") { // TEXTILES
+        secTextiles.style.display = "flex";
+        tituloVariante.innerText = "Talla";
+    } 
+    else if (categoria == "2") { // CERÁMICOS
+        secCeramicos.style.display = "flex";
+        tituloVariante.innerText = "Tipo de Taza";
+    } 
+    else if (categoria == "3") { // VINILES
+        secViniles.style.display = "flex"; 
+        tituloVariante.innerText = "Presentación"; 
+    }
+}
+</script>
+{% endblock %}

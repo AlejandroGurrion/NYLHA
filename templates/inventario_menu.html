@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario por Categoría{% endblock %}
+
+{% block content %}
+<style>
+    .header-inventario {
+        background-color: #d4edda;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: -20px -20px 20px -20px;
+    }
+    .categoria-card {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        text-decoration: none;
+        color: black;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+    }
+    .card-textiles { background-color: #d1e2ff; }
+    .card-ceramicos { background-color: #d4edda; }
+    .card-viniles { background-color: #fff3cd; }
+
+    .icon-cat { font-size: 35px; margin-right: 20px; color: #333; }
+    .info-cat b { font-size: 20px; display: block; text-transform: uppercase; }
+    .info-cat span { font-size: 14px; color: #555; }
+</style>
+
+<div class="header-inventario">
+    <a href="{{ url_for('login') }}" style="color: black;"><i class="fas fa-arrow-left"></i></a>
+    <h2 style="margin: 0;">Inventario por Categoría</h2>
+</div>
+
+<div style="padding: 10px;">
+    <a href="{{ url_for('ver_textiles') }}" class="categoria-card card-textiles">
+        <i class="fas fa-tshirt icon-cat"></i>
+        <div class="info-cat">
+            <b>Textiles</b>
+            <span>Playeras (Dam, Cab, Niño) - CH, M, G, XG<br>Gorras - Todos los colores</span>
+        </div>
+    </a>
+
+    <a href="{{ url_for('ver_ceramicos') }}" class="categoria-card card-ceramicos">
+        <i class="fas fa-mug-hot icon-cat"></i>
+        <div class="info-cat">
+            <b>Cerámicos</b>
+            <span>Tazas Mágicas, Blancas y Glitter</span>
+        </div>
+    </a>
+
+    <a href="{{ url_for('ver_viniles') }}" class="categoria-card card-viniles">
+        <i class="fas fa-scroll icon-cat"></i>
+        <div class="info-cat">
+            <b>Viniles</b>
+            <span>Vinil Textil (Adhesivo, Mate, Texturizado)<br>Vinil Reflejante</span>
+        </div>
+    </a>
+</div>
+{% endblock %}

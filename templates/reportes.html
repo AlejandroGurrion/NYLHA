@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes de Inventario{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .reportes-container { padding: 15px; background-color: #f9f9f9; min-height: 100vh; }
+    .header-reportes {
+        background-color: #d4edda; color: #000; padding: 20px;
+        text-align: center; font-weight: bold; font-size: 24px;
+        margin: -20px -20px 20px -20px; border-bottom: 1px solid #ccc;
+    }
+    .btn-group { display: flex; justify-content: center; margin-bottom: 20px; border: 2px solid #000; border-radius: 5px; overflow: hidden; }
+    .btn-filtro { flex: 1; padding: 15px; border: none; font-weight: bold; background-color: #eee; color: #000; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .btn-filtro.active { background-color: #008b8b; color: white; }
+
+    .card-reporte { background: white; border: 1px solid #ccc; border-radius: 5px; padding: 15px; margin-bottom: 20px; }
+    .card-reporte h3 { margin-top: 0; font-size: 17px; border-bottom: 1px solid #eee; padding-bottom: 10px; text-transform: uppercase; }
+
+    .grafica-container { height: 220px; position: relative; }
+    .top-list { list-style: none; padding: 0; margin: 10px 0; }
+    .top-list li { padding: 5px 0; font-size: 16px; border-bottom: 1px dotted #ccc; }
+
+    /* Estilo para el botón de PDF */
+    .btn-pdf {
+        width: 100%; background-color: #dc3545; color: white; padding: 15px;
+        border: none; border-radius: 10px; font-weight: bold; font-size: 16px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+        text-transform: uppercase; margin-top: 10px;
+    }
+
+    .alerta-resumen { color: #000000; background-color: #bdbdbd; padding: 10px; border-radius: 5px; font-weight: bold; }
+</style>
+
+<div class="reportes-container">
+    <div class="header-reportes">Reportes</div>
+
+    <div class="btn-group">
+        <a href="{{ url_for('ver_reportes', filtro='semana') }}" class="btn-filtro {% if filtro_actual == 'semana' %}active{% endif %}">SEMANA</a>
+        <a href="{{ url_for('ver_reportes', filtro='mes') }}" class="btn-filtro {% if filtro_actual == 'mes' %}active{% endif %}">MES</a>
+    </div>
+
+    <div class="card-reporte">
+        <div class="grafica-container">
+            <canvas id="graficaMovimientos"></canvas>
+        </div>
+        <div style="display: flex; justify-content: space-around; margin-top: 10px; font-weight: bold; font-size: 14px;">
+            <span>ENTRADAS ({{ entradas }})</span>
+            <span>SALIDAS ({{ salidas }})</span>
+        </div>
+    </div>
+
+    <div class="card-reporte">
+        <h3> MÁS UTILIZADOS</h3>
+        <ul class="top-list">
+            {% for item in top_productos %}
+                <li>{{ loop.index }}. {{ item.nombre_mat }} ({{ item.total }} Uds)</li>
+            {% else %}
+                <li>Sin movimientos en este periodo</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card-reporte">
+        <h3>Estado del Inventario</h3>
+        <div class="alerta-resumen">
+            <i class="fas fa-exclamation-triangle"></i> 
+            Tienes {{ alertas_count }} productos con stock bajo.
+        </div>
+    </div>
+
+    <button class="btn-pdf" onclick="window.print()">
+        <i class="fas fa-file-pdf"></i> Descargar Reporte PDF
+    </button>
+</div>
+
+<script>
+    const ctx = document.getElementById('graficaMovimientos').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Entradas', 'Salidas'],
+            datasets: [{
+                data: [{{ entradas | default(0) }}, {{ salidas | default(0) }}], 
+                backgroundColor: ['#155724', '#721c24'], 
+                borderColor: '#000', borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

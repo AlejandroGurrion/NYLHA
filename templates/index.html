@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H&H-Personaliza - Login</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #90c4c4; 
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .logo-taller {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 130px;
+        }
+
+        .login-content {
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+        }
+
+        h2.titulo-taller {
+            background-color: #ef6464; 
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 5px;
+            font-size: 20px;
+            color: #000000;
+            margin-bottom: 25px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .caja-blanca-texto {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #000000;
+        }
+
+        input {
+            width: 85%;
+            padding: 18px;
+            margin: 12px 0;
+            border: 2px solid #a8d5c8; 
+            border-radius: 12px;
+            font-size: 18px;
+            color: #333;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.05);
+            font-weight: bold;
+        }
+
+        .input-usuario {
+            background-color: #d4edda; 
+            border-color: #1d8d39;
+        }
+
+        .input-password {
+            background-color: #fff3cd; 
+            border-color: #ad9033;
+        }
+
+        input::placeholder {
+            color: #555;
+        }
+
+        button {
+            background-color: #24a148; 
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #1e853c;
+            transform: scale(1.02);
+        }
+
+        .olvido {
+            display: block;
+            margin-top: 20px;
+            color: #0066cc;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+
+        .logo-tec-inferior {
+            margin-top: 50px;
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="{{ url_for('static', filename='img/logo_taller.png') }}" class="logo-taller" alt="Logo Taller">
+
+    <div class="login-content">
+        <h2 class="titulo-taller">H&H-Personaliza</h2>
+        
+        <div class="caja-blanca-texto">
+            "Sistema de Gestión de Stock e Inventario (SGSI)"
+        </div>
+
+        <form action="/login" method="POST">
+            <input type="text" name="usuario" placeholder="Usuario" class="input-usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" class="input-password" required>
+            <br>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+
+        <a href="#" class="olvido">¿Olvidaste tu contraseña?</a>
+
+        <img src="{{ url_for('static', filename='img/logo_tec.png') }}" class="logo-tec-inferior" alt="Logo Tec">
+    </div>
+
+</body>
+</html>

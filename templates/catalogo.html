@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Catálogo{% endblock %}
+
+{% block content %}
+<style>
+    .catalogo-container { padding: 10px; }
+    .producto-item {
+        display: flex; justify-content: space-between; align-items: center;
+        background-color: white; border: 2px solid #000;
+        border-radius: 20px; padding: 15px; margin-bottom: 15px;
+    }
+    .producto-info { font-weight: bold; font-size: 18px; }
+    .acciones { display: flex; gap: 20px; align-items: center; }
+    .btn-accion { background: none; border: none; cursor: pointer; text-align: center; font-size: 12px; }
+    .btn-borrar { color: #ff5c5c; font-size: 20px; }
+    .btn-editar { color: #555; font-size: 20px; }
+    .add-button {
+        position: fixed; bottom: 100px; right: 20px;
+        background-color: #24a148; color: white;
+        width: 60px; height: 60px; border-radius: 50%;
+        display: flex; justify-content: center; align-items: center;
+        font-size: 30px; border: 2px solid #000; text-decoration: none;
+    }
+
+    .btn-regresar { text-decoration: none; color: #000; font-size: 25px; margin-bottom: 10px; display: block; }
+
+</style>
+
+<a href="javascript:history.back()" class="btn-regresar"> <i class="fas fa-arrow-left"></i> </a>
+
+
+<div class="catalogo-container">
+    <h2 style="text-align: center;">Gestión de catálogo</h2>
+
+    {% for prod in productos %}
+    <div class="producto-item">
+        <div class="producto-info">{{ prod.nombre_prod }}</div>
+        <div class="acciones">
+            <a href="{{ url_for('editar_producto', id=prod.id_producto) }}" class="btn-accion">
+                <i class="fas fa-edit btn-editar"></i>
+                <span style="display: block;">Editar</span>
+            </a>
+
+            <form action="{{ url_for('borrar_producto', id=prod.id_producto) }}" method="POST" onsubmit="return confirm('¿Borrar este producto y sus variantes?');">
+                <button type="submit" class="btn-accion">
+                    <i class="fas fa-trash btn-borrar"></i>
+                    <span style="display: block; color: black;">Borrar</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <a href="{{ url_for('nuevo_producto') }}" class="add-button">+</a>
+</div>
+{% endblock %}
