@@ -2,14 +2,24 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta 
 from sqlalchemy import func
-import os
 
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DE LA BASE DE DATOS ---
+# --- cd "C:\Program Files\MySQL\MySQL Server 8.0\bin" ---
+# --- mysql -h monorail.proxy.rlwy.net -P 42771 -u root -p ---
+# --- gmAmkMKTzqFCLDzqppYeoLcfQzKlBXfW ---
+
+import os
+
 url = os.getenv('DATABASE_URL')
 
-if url and url.startswith("mysql://"):
+# Si no existe, usa tu conexión directa (fallback)
+if not url:
+    url = 'mysql+mysqlconnector://root:gmAmkMKTzqFCLDzqppYeoLcfQzKlBXfW@monorail.proxy.rlwy.net:42771/sgsi_taller'
+
+# Corrección por compatibilidad
+if url.startswith("mysql://"):
     url = url.replace("mysql://", "mysql+mysqlconnector://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = url
@@ -70,9 +80,10 @@ def login():
     if user and user.password == password_ingresada:
         alertas_reales = Material.query.filter(Material.stock_actual <= Material.stock_minimo).all()
         
-        movimientos_recientes = db.session.query(Movimiento, Material)\
-            .join(Material, Movimiento.id_material == Material.id_material)\
-            .order_by(Movimiento.fecha.desc()).limit(5).all()
+        # ESTA ES LA LÍNEA QUE DEBES CAMBIAR:
+        movimientos_recientes = db.session.query(Movimiento, Material).\
+            join(Material, Movimiento.id_material == Material.id_material).\
+            order_by(Movimiento.fecha.desc()).limit(5).all()
         
         return render_template('dashboard.html', 
                             usuario=user.nombre_usuario, 
@@ -159,6 +170,93 @@ def borrar_producto(id):
         db.session.rollback()
         return f"Error al borrar: {e}"
 
+@app.route('/inventario/entrada', methods=['GET', 'POST'])
+def registrar_entrada():
+    if request.method == 'POST':
+        id_prod = request.form.get('id_producto')
+        talla = request.form.get('talla_sel')
+        color = request.form.get('color_sel')
+        cantidad = int(request.form.get('cantidad'))
+        
+        variante = Material.query.filter_by(
+            id_producto=id_prod, 
+            talla=talla, 
+            color=color
+        ).first()
+        
+        if variante:
+            try:
+                variante.stock_actual += cantidad
+                nuevo_mov = Movimiento(
+                    id_material=variante.id_material,
+                    tipo_mov='Entrada',
+                    cantidad=cantidad,
+                    id_usuario=1
+                )
+                db.session.add(nuevo_mov)
+                db.session.commit()
+
+                if variante.id_categoria == 2:
+                    return redirect(url_for('ver_ceramicos'))
+                elif variante.id_categoria == 3:
+                    return redirect(url_for('ver_viniles'))
+                else:
+                    return redirect(url_for('ver_textiles'))
+
+            except Exception as e:
+                db.session.rollback()
+                return f"Error: {e}"
+        else:
+            return "<h1>Error: Combinación no encontrada</h1>"
+
+    productos = Producto.query.all()
+    return render_template('registrar_entrada.html', productos=productos)
+
+@app.route('/inventario/salida', methods=['GET', 'POST'])
+def registrar_salida():
+    if request.method == 'POST':
+        id_prod = request.form.get('id_producto')
+        talla = request.form.get('talla_sel')
+        color = request.form.get('color_sel')
+        cantidad = int(request.form.get('cantidad'))
+        
+        variante = Material.query.filter_by(
+            id_producto=id_prod, 
+            talla=talla, 
+            color=color
+        ).first()
+        
+        if variante:
+            if variante.stock_actual >= cantidad:
+                try:
+                    variante.stock_actual -= cantidad
+                    nuevo_mov = Movimiento(
+                        id_material=variante.id_material,
+                        tipo_mov='Salida',
+                        cantidad=cantidad,
+                        id_usuario=1
+                    )
+                    db.session.add(nuevo_mov)
+                    db.session.commit()
+                    
+                    if variante.id_categoria == 2:
+                        return redirect(url_for('ver_ceramicos'))
+                    elif variante.id_categoria == 3:
+                        return redirect(url_for('ver_viniles'))
+                    else:
+                        return redirect(url_for('ver_textiles'))
+
+                except Exception as e:
+                    db.session.rollback()
+                    return f"Error: {e}"
+            else:
+                return "<h1>Error: Stock insuficiente.</h1><a href='/inventario/salida'>Volver</a>"
+        else:
+            return "<h1>Error: Combinación no encontrada</h1>"
+
+    productos = Producto.query.all()
+    return render_template('registrar_salida.html', productos=productos)
+
 @app.route('/inventario')
 def menu_inventario():
     return render_template('inventario_menu.html')
@@ -167,9 +265,9 @@ def menu_inventario():
 def ir_dashboard():
     alertas_reales = Material.query.filter(Material.stock_actual <= Material.stock_minimo).all()
     
-    movimientos_recientes = db.session.query(Movimiento, Material)\
-        .join(Material, Movimiento.id_material == Material.id_material)\
-        .order_by(Movimiento.fecha.desc()).limit(5).all()
+    movimientos_recientes = db.session.query(Movimiento, Material).\
+        join(Material, Movimiento.id_material == Material.id_material).\
+        order_by(Movimiento.fecha.desc()).limit(5).all()
     
     return render_template('dashboard.html', 
                            usuario="Pablo", 
@@ -188,5 +286,37 @@ def ver_viniles():
     materiales = Material.query.filter_by(id_categoria=3).all()
     return render_template('viniles.html', productos=productos_viniles, materiales=materiales)
 
+@app.route('/reportes')
+def ver_reportes():
+    filtro = request.args.get('filtro', 'semana')
+    ahora = datetime.utcnow() - timedelta(hours=6)
+    if filtro == 'mes':
+        fecha_inicio = ahora - timedelta(days=30)
+    else:
+        fecha_inicio = ahora - timedelta(days=7)
+
+    entradas_total = db.session.query(func.sum(Movimiento.cantidad))\
+        .filter(Movimiento.tipo_mov == 'Entrada', Movimiento.fecha >= fecha_inicio).scalar() or 0
+    salidas_total = db.session.query(func.sum(Movimiento.cantidad))\
+        .filter(Movimiento.tipo_mov == 'Salida', Movimiento.fecha >= fecha_inicio).scalar() or 0
+
+    top_materiales = db.session.query(
+        Material.nombre_mat, 
+        func.sum(Movimiento.cantidad).label('total')
+    ).join(Movimiento, Material.id_material == Movimiento.id_material)\
+     .filter(Movimiento.tipo_mov == 'Salida', Movimiento.fecha >= fecha_inicio)\
+     .group_by(Material.id_material)\
+     .order_by(func.sum(Movimiento.cantidad).desc())\
+     .limit(3).all()
+
+    conteo_alertas = Material.query.filter(Material.stock_actual <= Material.stock_minimo).count()
+
+    return render_template('reportes.html', 
+                           entradas=entradas_total, 
+                           salidas=salidas_total,
+                           top_productos=top_materiales,
+                           alertas_count=conteo_alertas, # Nuevo dato
+                           filtro_actual=filtro)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
