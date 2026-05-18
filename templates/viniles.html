@@ -4,75 +4,46 @@
 
 {% block content %}
 <style>
-    .header-viniles {
-        background-color: #eee; 
-        color: #000;
-        padding: 10px;
-        text-align: center;
-        font-weight: bold;
-        text-transform: uppercase;
-        border: 1px solid #ccc;
-        margin: -20px -20px 20px -20px;
-        letter-spacing: 2px;
-    }
-
+    .header-viniles { background-color: #eee; color: #000; padding: 10px; text-align: center; font-weight: bold; text-transform: uppercase; border: 1px solid #ccc; margin: -20px -20px 20px -20px; letter-spacing: 2px; }
     .contenedor-principal { padding: 10px; }
+    .producto-titulo { font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block; margin-bottom: 10px; font-size: 16px; }
+    .tarjeta-material { border: 2px solid #000; border-radius: 15px; padding: 15px; margin-bottom: 20px; background-color: #fff; }
+    .info-linea { margin-bottom: 5px; font-size: 16px; }
+    .btn-regresar { text-decoration: none; color: #000; font-size: 18px; margin-bottom: 40px; display: inline-block; }
 
-    .producto-titulo {
-        font-weight: bold;
-        text-transform: uppercase;
-        border-bottom: 2px solid #000;
-        display: inline-block;
-        margin-bottom: 10px;
-        font-size: 16px;
-    }
-
-    .tarjeta-material {
-        border: 2px solid #000;
-        border-radius: 15px;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #fff;
-    }
-
-    .info-linea {
-        margin-bottom: 5px;
-        font-size: 16px;
-    }
-
-    .btn-regresar { 
-        text-decoration: none; 
-        color: #000; 
-        font-size: 18px; 
-        margin-bottom: 40px; 
-        display: inline-block; 
-    }
+    .btn-regresar { display: inline-block; margin-bottom: 15px; color: #555; text-decoration: none; font-size: 18px; }
+    .titulo-categoria { text-align: center; background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc; margin-bottom: 20px; font-weight: bold; letter-spacing: 2px; }
+    .producto-grupo { margin-bottom: 30px; }
+    .producto-nombre { font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 10px; padding-left: 10px; text-transform: uppercase; }
+    .color-card { background-color: white; border: 2px solid #000; border-radius: 20px; padding: 15px; margin-bottom: 15px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+    .color-nombre { font-weight: bold; margin-bottom: 8px; }
+    .tallas-info { font-size: 14px; color: #333; } 
 </style>
 
-<a href="{{ url_for('menu_inventario') }}" class="btn-regresar">
-    <i class="fas fa-arrow-left"></i>
-</a>
-
-<div class="header-viniles">
-    VINILES
-</div>
+<a href="javascript:history.back()" class="btn-regresar"><i class="fas fa-arrow-left"></i></a>
+<div class="titulo-categoria">VINILES</div>
 
 <div class="contenedor-principal">
     {% for prod in productos %}
         <div class="producto-titulo">{{ prod.nombre_prod }}</div>
-        
         {% for mat in materiales %}
             {% if mat.id_producto == prod.id_producto %}
             <div class="tarjeta-material">
                 <div class="info-linea"><b>Color:</b> {{ mat.color }}</div>
                 <div class="info-linea">
-                    <b>{{ mat.talla }}:</b> {{ mat.stock_actual }} Unidades disponibles
+                    <b>{{ mat.talla }}:</b> 
+                    <span style="font-weight: bold; 
+                        {% if mat.stock_actual <= mat.stock_minimo %} color: red; 
+                        {% elif mat.stock_actual <= (mat.stock_minimo + 2) %} color: #ffae00; 
+                        {% else %} color: #24a148; {% endif %}">
+                        {{ mat.stock_actual }} Unidades disponibles
+                    </span>
                 </div>
             </div>
             {% endif %}
         {% endfor %}
     {% else %}
-        <p style="text-align: center; color: #999;">No hay viniles registrados.</p>
+        <p style="text-align: center; color: #666;">No hay productos registrados en esta categoría.</p>
     {% endfor %}
 </div>
 {% endblock %}

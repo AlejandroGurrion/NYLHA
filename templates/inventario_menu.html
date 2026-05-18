@@ -4,6 +4,14 @@
 
 {% block content %}
 <style>
+    .btn-regresar {
+        display: inline-block;
+        color: #555;
+        text-decoration: none;
+        font-size: 18px;
+        position: relative;
+        top: 1px; 
+    }
     .header-inventario {
         background-color: #d4edda;
         padding: 15px;
@@ -31,11 +39,13 @@
     .info-cat b { font-size: 20px; display: block; text-transform: uppercase; }
     .info-cat span { font-size: 14px; color: #555; }
 </style>
-
 <div class="header-inventario">
-    <a href="{{ url_for('login') }}" style="color: black;"><i class="fas fa-arrow-left"></i></a>
+    <a href="javascript:history.back()" class="btn-regresar">
+        <i class="fas fa-arrow-left"></i>
+    </a>
     <h2 style="margin: 0;">Inventario por Categoría</h2>
 </div>
+
 
 <div style="padding: 10px;">
     <a href="{{ url_for('ver_textiles') }}" class="categoria-card card-textiles">

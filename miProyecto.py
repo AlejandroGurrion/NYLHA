@@ -10,19 +10,7 @@ app = Flask(__name__)
 # --- mysql -h monorail.proxy.rlwy.net -P 42771 -u root -p ---
 # --- gmAmkMKTzqFCLDzqppYeoLcfQzKlBXfW ---
 
-import os
-
-url = os.getenv('DATABASE_URL')
-
-# Si no existe, usa tu conexión directa (fallback)
-if not url:
-    url = 'mysql+mysqlconnector://root:gmAmkMKTzqFCLDzqppYeoLcfQzKlBXfW@monorail.proxy.rlwy.net:42771/sgsi_taller'
-
-# Corrección por compatibilidad
-if url.startswith("mysql://"):
-    url = url.replace("mysql://", "mysql+mysqlconnector://", 1)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = url
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:kTAGzzfVKGSkKDgTJYyoaOstTbkGMPle@mysql.railway.internal:3306/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -80,7 +68,6 @@ def login():
     if user and user.password == password_ingresada:
         alertas_reales = Material.query.filter(Material.stock_actual <= Material.stock_minimo).all()
         
-        # ESTA ES LA LÍNEA QUE DEBES CAMBIAR:
         movimientos_recientes = db.session.query(Movimiento, Material).\
             join(Material, Movimiento.id_material == Material.id_material).\
             order_by(Movimiento.fecha.desc()).limit(5).all()
@@ -263,7 +250,13 @@ def menu_inventario():
 
 @app.route('/dashboard')
 def ir_dashboard():
-    alertas_reales = Material.query.filter(Material.stock_actual <= Material.stock_minimo).all()
+    # ALERTA ROJA (Stock <= Mínimo)
+    alertas_rojas = Material.query.filter(Material.stock_actual <= Material.stock_minimo).all()
+    
+    alertas_amarillas = Material.query.filter(
+        Material.stock_actual > Material.stock_minimo,
+        Material.stock_actual <= (Material.stock_minimo + 2)
+    ).all()
     
     movimientos_recientes = db.session.query(Movimiento, Material).\
         join(Material, Movimiento.id_material == Material.id_material).\
@@ -271,7 +264,8 @@ def ir_dashboard():
     
     return render_template('dashboard.html', 
                            usuario="Pablo", 
-                           alertas=alertas_reales,
+                           alertas_rojas=alertas_rojas,
+                           alertas_amarillas=alertas_amarillas,
                            movimientos=movimientos_recientes)
 
 @app.route('/categoria/ceramicos')

@@ -25,13 +25,42 @@
 
     .btn-regresar { text-decoration: none; color: #000; font-size: 25px; margin-bottom: 10px; display: block; }
 
+    .header-catalogo {
+        background-color: #d4edda; 
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: -20px -20px 20px -20px; 
+        justify-content: center; 
+    }
+
+    .header-catalogo h2 {
+        margin: 0;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .btn-regresar {
+        color: #000;
+        font-size: 22px;
+        text-decoration: none;
+        position: absolute;
+        left: 20px; 
+    }
+
+
 </style>
 
-<a href="javascript:history.back()" class="btn-regresar"> <i class="fas fa-arrow-left"></i> </a>
-
+<div class="header-catalogo">
+    <a href="javascript:history.back()" class="btn-regresar">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h2>Gestión de catálogo</h2>
+</div>
 
 <div class="catalogo-container">
-    <h2 style="text-align: center;">Gestión de catálogo</h2>
+
 
     {% for prod in productos %}
     <div class="producto-item">

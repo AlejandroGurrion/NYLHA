@@ -4,72 +4,33 @@
 
 {% block content %}
 <style>
-    .btn-regresar {
-        display: inline-block;
-        margin-bottom: 15px;
-        color: #555;
-        text-decoration: none;
-        font-size: 18px;
-    }
-
-    .titulo-categoria {
-        text-align: center;
-        background-color: #f0f0f0;
-        padding: 10px;
-        border: 1px solid #ccc;
-        margin-bottom: 20px;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .producto-grupo {
-        margin-bottom: 30px;
-    }
-
-    .producto-nombre {
-        font-weight: bold;
-        border-bottom: 1px solid #000;
-        margin-bottom: 10px;
-        padding-left: 10px;
-        text-transform: uppercase;
-    }
-
-    .color-card {
-        background-color: white;
-        border: 2px solid #000;
-        border-radius: 20px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .color-nombre {
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    .tallas-info {
-        font-size: 14px;
-        color: #333;
-    }
+    .btn-regresar { display: inline-block; margin-bottom: 15px; color: #555; text-decoration: none; font-size: 18px; }
+    .titulo-categoria { text-align: center; background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc; margin-bottom: 20px; font-weight: bold; letter-spacing: 2px; }
+    .producto-grupo { margin-bottom: 30px; }
+    .producto-nombre { font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 10px; padding-left: 10px; text-transform: uppercase; }
+    .color-card { background-color: white; border: 2px solid #000; border-radius: 20px; padding: 15px; margin-bottom: 15px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+    .color-nombre { font-weight: bold; margin-bottom: 8px; }
+    .tallas-info { font-size: 14px; color: #333; }
 </style>
 
 <a href="javascript:history.back()" class="btn-regresar"> <i class="fas fa-arrow-left"></i> </a>
-
-<div class="titulo-categoria">
-    TEXTILES
-</div>
+<div class="titulo-categoria">TEXTILES</div>
 
 {% for prod in productos %}
 <div class="producto-grupo">
     <div class="producto-nombre">{{ prod.nombre_prod }}</div>
-    
     {% for mat in materiales %}
         {% if mat.id_producto == prod.id_producto %}
         <div class="color-card">
             <div class="color-nombre">Color: {{ mat.color }}</div>
             <div class="tallas-info">
-                <b>Talla {{ mat.talla }}:</b> {{ mat.stock_actual }} Unidades disponibles
+                <b>Talla {{ mat.talla }}:</b> 
+                <span style="font-weight: bold; 
+                    {% if mat.stock_actual <= mat.stock_minimo %} color: red; 
+                    {% elif mat.stock_actual <= (mat.stock_minimo + 2) %} color: #ffae00; 
+                    {% else %} color: #24a148; {% endif %}">
+                    {{ mat.stock_actual }} Unidades disponibles
+                </span>
             </div>
         </div>
         {% endif %}
@@ -78,5 +39,4 @@
 {% else %}
     <p style="text-align: center; color: #666;">No hay productos registrados en esta categoría.</p>
 {% endfor %}
-
 {% endblock %}
