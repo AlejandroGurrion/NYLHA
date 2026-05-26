@@ -10,7 +10,7 @@ app = Flask(__name__)
 # --- mysql -h monorail.proxy.rlwy.net -P 42771 -u root -p ---
 # --- gmAmkMKTzqFCLDzqppYeoLcfQzKlBXfW ---
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:kTAGzzfVKGSkKDgTJYyoaOstTbkGMPle@mysql.railway.internal:3306/railway'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:cCKxngiWIUGjidrFSMqTeapgsOWvuVcT@zephyr.proxy.rlwy.net:38435/sgsi_taller'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
